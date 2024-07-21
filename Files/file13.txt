@@ -1,0 +1,26 @@
+Immutable types and their role
+
+Immutable types, whose state cannot be modified after creation, inherently provide thread safety. In this example, an ImmutableData class is created with an immutable property:
+
+using System;
+
+public class ImmutableData
+{
+    public int Value { get; }
+
+    public ImmutableData(int value)
+    {
+        Value = value;
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        ImmutableData immutableData = new ImmutableData(42);
+
+        // The state of immutableData cannot be modified after creation
+        Console.WriteLine($"Immutable Data Value: {immutableData.Value}");
+    }
+}

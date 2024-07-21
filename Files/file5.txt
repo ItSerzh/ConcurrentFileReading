@@ -1,0 +1,9 @@
+Task vs. Thread: Key Differences
+
+While tasks and threads both represent units of work, they differ in several key aspects:
+
+Threading Model: Threads are managed by the operating system, while tasks are managed by the runtime environment.
+
+Resource Management: Threads require explicit resource management, while tasks are managed by the runtime.
+
+Exception Handling: Thread-based exceptions can be difficult to handle, while tasks provide a structured approach to exception handling.

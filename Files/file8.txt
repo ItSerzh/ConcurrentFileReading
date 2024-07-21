@@ -1,0 +1,42 @@
+Parallel LINQ (PLINQ)
+
+Parallel LINQ (PLINQ) is an extension of LINQ that enables parallel execution of LINQ queries. PLINQ utilizes the TPL to distribute the query workload across multiple threads.
+
+using System;
+using System.Linq;
+
+class Program
+{
+    static void Main()
+    {
+        Chef[] chefs = { new Chef("Alice"), new Chef("Bob"), new Chef("Charlie"), new Chef("David") };
+
+        // PLINQ example
+        var results = chefs.AsParallel().Select(chef =>
+        {
+            chef.Cook();
+            return chef.Name;
+        }).ToList();
+
+        Console.WriteLine("Cooking completed for chefs: " + string.Join(", ", results));
+    }
+}
+
+class Chef
+{
+    public string Name { get; }
+
+    public Chef(string name)
+    {
+        Name = name;
+    }
+
+    public void Cook()
+    {
+        Console.WriteLine($"{Name} is cooking...");
+        Task.Delay(1000).Wait(); // Simulating cooking time
+        Console.WriteLine($"{Name} finished cooking.");
+    }
+}
+
+In the chef example, PLINQ is applied to the array of chefs. The Select operation is performed in parallel, where each chef's Cook method is called. The results are then collected into a list. PLINQ provides a convenient way to parallelize LINQ queries without the need for explicit thread management.

@@ -1,0 +1,36 @@
+ThreadLocal<T> for per-thread data
+
+ThreadLocal<T> is a useful class for managing per-thread data without synchronization. In the following example, a ThreadLocal<int> is used to store a unique value for each thread:
+
+using System;
+using System.Threading;
+
+class Program
+{
+    static ThreadLocal<int> threadLocalValue = new ThreadLocal<int>(() => 0);
+
+    static void SetThreadLocalValue(int newValue)
+    {
+        threadLocalValue.Value = newValue;
+    }
+
+    static int GetThreadLocalValue()
+    {
+        return threadLocalValue.Value;
+    }
+
+    static void Main()
+    {
+        // Simulating multiple threads with unique per-thread values
+        for (int i = 1; i <= 3; i++)
+        {
+            new Thread(() =>
+            {
+                SetThreadLocalValue(i);
+                Console.WriteLine($"Thread ID: {Thread.CurrentThread.ManagedThreadId}, ThreadLocal Value: {GetThreadLocalValue()}");
+            }).Start();
+        }
+
+        Console.ReadLine();
+    }
+}

@@ -1,0 +1,41 @@
+Asynchronous Programming with Tasks
+
+The async and await keywords are fundamental to asynchronous programming with tasks. The async keyword marks a method as asynchronous, indicating that it may contain asynchronous operations. The await keyword is used to suspend the execution of an asynchronous method until the asynchronous operation completes.
+
+Asynchronous methods enable non-blocking I/O operations, allowing the main thread to remain responsive while asynchronous operations are in progress. This improves the overall responsiveness of the application.
+
+Exception handling in asynchronous code is handled using try/catch blocks. Exceptions thrown within asynchronous methods are propagated to the caller, where they can be caught and handled appropriately.
+
+using System;
+using System.Threading.Tasks;
+
+class Program
+{
+    static async Task Main()
+    {
+        Task myTask1 = Task.Run(async () =>
+        {
+            Console.WriteLine("Chef 1 is preparing Dish 1");
+            await Task.Delay(10000); // Chef 1 takes 10 seconds to prepare Dish 1
+            Console.WriteLine("Dish 1 is ready!");
+        });
+
+        Task myTask2 = Task.Run(async () =>
+        {
+            Console.WriteLine("Chef 2 is preparing Dish 2");
+            await Task.Delay(1000); // Chef 2 takes 1 second to prepare Dish 2
+            Console.WriteLine("Dish 2 is ready!");
+        });
+
+        Task myTask3 = Task.Run(async () =>
+        {
+            Console.WriteLine("Chef 3 is preparing Dish 3");
+            await Task.Delay(1000); // Chef 3 takes 1 second to prepare Dish 3
+            Console.WriteLine("Dish 3 is ready!");
+        });
+
+        await Task.WhenAll(myTask1, myTask2, myTask3);
+
+        Console.WriteLine("Manager: All dishes are ready! Task completed!");
+    }
+}

@@ -1,0 +1,60 @@
+Background vs. Foreground Threads
+Distinction between background and foreground threads
+
+Threads in .NET are categorized as either background or foreground. Foreground threads keep the application alive until they complete, while background threads do not prevent the application from terminating. By default, threads created by the ThreadPool are background threads. In this example, we create both foreground and background threads:
+
+using System;
+using System.Threading;
+
+class Program
+{
+    static void Main()
+    {
+        Thread foregroundThread = new Thread(() =>
+        {
+            Console.WriteLine("Foreground Thread");
+        });
+
+        Thread backgroundThread = new Thread(() =>
+        {
+            Console.WriteLine("Background Thread");
+        });
+
+        foregroundThread.Start(); // Foreground thread
+        backgroundThread.IsBackground = true; // Set as background thread
+        backgroundThread.Start();
+
+        Console.WriteLine("Main Thread Exiting");
+    }
+}
+
+Implications for application termination
+
+Foreground threads keep the application alive until they complete. In the example, the application will wait for the foreground thread to finish before exiting, but it will not wait for the background thread:
+
+using System;
+using System.Threading;
+
+class Program
+{
+    static void Main()
+    {
+        Thread foregroundThread = new Thread(() =>
+        {
+            Console.WriteLine("Foreground Thread");
+            Thread.Sleep(3000); // Simulating work
+        });
+
+        Thread backgroundThread = new Thread(() =>
+        {
+            Console.WriteLine("Background Thread");
+            Thread.Sleep(2000); // Simulating work
+        });
+
+        foregroundThread.Start(); // Foreground thread
+        backgroundThread.IsBackground = true; // Set as background thread
+        backgroundThread.Start();
+
+        Console.WriteLine("Main Thread Exiting");
+    }
+}

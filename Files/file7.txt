@@ -1,0 +1,49 @@
+Task Parallel Library (TPL)
+
+The Task Parallel Library (TPL) is a set of classes that simplifies parallel programming in .NET. It provides several features for managing tasks and coordinating their execution.
+
+Parallel.ForEach and Parallel.For
+
+Parallel.ForEach and Parallel.For are methods for executing a delegate in parallel for each element in a collection. Parallel.ForEach preserves the order of iteration, while Parallel.For does not guarantee order.
+
+using System;
+using System.Threading.Tasks;
+
+class Program
+{
+    static void Main()
+    {
+        Chef[] chefs = { new Chef("Alice"), new Chef("Bob"), new Chef("Charlie"), new Chef("David") };
+
+        // Parallel.ForEach example
+        Parallel.ForEach(chefs, chef =>
+        {
+            chef.Cook();
+        });
+
+        // Parallel.For example
+        Parallel.For(0, chefs.Length, i =>
+        {
+            chefs[i].Cook();
+        });
+    }
+}
+
+class Chef
+{
+    public string Name { get; }
+
+    public Chef(string name)
+    {
+        Name = name;
+    }
+
+    public void Cook()
+    {
+        Console.WriteLine($"{Name} is cooking...");
+        Task.Delay(1000).Wait(); // Simulating cooking time
+        Console.WriteLine($"{Name} finished cooking.");
+    }
+}
+
+In the provided chef example, an array of chefs is processed in parallel using Parallel.ForEach and Parallel.For. For each chef, the Cook method is invoked, simulating cooking activities. The TPL takes care of managing the parallel execution, allowing chefs to work concurrently. It's important to note that the order of execution is not guaranteed to be the same as the order of elements in the array.

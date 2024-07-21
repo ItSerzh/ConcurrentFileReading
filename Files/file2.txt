@@ -1,0 +1,3 @@
+Basics of Threads
+
+Threads act as independent workers within your software, each handling specific operations simultaneously. They function like parallel streams of execution, allowing tasks to progress concurrently. In C#, the creation and management of threads involve defining these parallel streams, specifying when they should start, and overseeing their lifecycle, including key states such as creation, execution, and completion.

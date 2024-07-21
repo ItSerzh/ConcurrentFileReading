@@ -1,0 +1,16 @@
+ThreadPool Management
+ThreadPool Basics
+
+ThreadPool vs. Individual Threads:
+
+    Using the ThreadPool is beneficial for scenarios with many short-lived tasks or asynchronous operations, as it avoids the overhead of creating and destroying threads constantly.
+    Individual threads are explicitly created and managed by developers. While they offer more control, managing a large number of threads can lead to resource exhaustion.
+
+Default Settings and Configuration:
+
+    The ThreadPool has default settings that are automatically managed by the runtime.
+    You can configure the ThreadPool using methods like SetMaxThreads and SetMinThreads to set the maximum and minimum number of threads, influencing how the ThreadPool manages its resources.
+
+// Example: Configuring the ThreadPool
+ThreadPool.SetMinThreads(5, 5);
+ThreadPool.SetMaxThreads(20, 20);

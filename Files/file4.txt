@@ -1,0 +1,11 @@
+Exploring Tasks
+
+A task is a unit of work that can be executed independently of other tasks. Tasks are lightweight and can be scheduled by the operating system to run concurrently on different threads. This makes them ideal for asynchronous programming, where multiple tasks can be executed simultaneously without blocking the main thread.
+
+Compared to traditional threads, tasks offer several advantages:
+
+Lightweight: Tasks are less resource-intensive than threads, reducing overhead and improving performance.
+
+Managed Execution: Tasks are managed by the runtime environment, which handles resource allocation, scheduling, and synchronization.
+
+Exception Handling: Tasks provide a structured approach to exception handling in asynchronous code.

@@ -1,0 +1,40 @@
+Advanced Thread and Task Considerations
+Thread Safety
+
+Importance of thread safety in concurrent programming
+
+In concurrent programming, when multiple threads can access and modify shared resources, ensuring thread safety is paramount to avoid data corruption. The lock statement is commonly used to synchronize access to shared data. In the following example, a SharedResource class uses a lock to safely increment a shared counter:
+
+using System;
+using System.Threading;
+
+class SharedResource
+{
+    private int counter = 0;
+    private object lockObject = new object();
+
+    public void IncrementCounter()
+    {
+        lock (lockObject)
+        {
+            counter++;
+            Console.WriteLine($"Counter: {counter}, Thread ID: {Thread.CurrentThread.ManagedThreadId}");
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        SharedResource sharedResource = new SharedResource();
+
+        // Simulating multiple threads incrementing the counter
+        for (int i = 0; i < 5; i++)
+        {
+            new Thread(() => sharedResource.IncrementCounter()).Start();
+        }
+
+        Console.ReadLine();
+    }
+}

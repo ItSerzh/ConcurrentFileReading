@@ -1,0 +1,223 @@
+ThreadPool Starvation
+
+ThreadPool starvation occurs when all threads in the ThreadPool are occupied, and new tasks are unable to acquire a thread for execution. Causes of ThreadPool starvation can include long-running tasks, synchronous blocking operations, or an imbalance between the number of tasks and available threads.
+
+Detecting and Diagnosing ThreadPool Starvation:
+
+    Monitoring the ThreadPool’s available threads, pending tasks, and other metrics.
+    If ThreadPool.GetAvailableThreads reports zero available threads, it indicates potential ThreadPool starvation.
+    Profiling tools and performance monitoring can help diagnose and identify patterns leading to starvation.
+
+you can create a thread pool starvation scenario by using below code:
+
+using System;
+using System.Threading;
+
+class Program
+{
+    private static int totalOrders = 100;
+    private static int completedOrders = 0;
+    private static object lockObject = new object();
+
+    static void Main()
+    {
+        // Set the maximum number of chefs (threads) in the kitchen (thread pool) to 10
+        ThreadPool.SetMaxThreads(10, 10);
+
+        Console.WriteLine("Press Enter to start the simulation...");
+        Console.ReadLine();
+
+        // Simulate a restaurant scenario with chefs (thread pool) handling orders (tasks)
+        for (int i = 0; i < totalOrders; i++)
+        {
+            ThreadPool.QueueUserWorkItem(ProcessOrder, i);
+        }
+
+        // Monitor the completion of orders (tasks)
+        while (true)
+        {
+            lock (lockObject)
+            {
+                if (completedOrders == totalOrders)
+                {
+                    Console.WriteLine("All orders completed. Press Enter to exit.");
+                    break;
+                }
+
+                // Check for kitchen (thread pool) starvation
+                int pendingOrders = totalOrders - completedOrders;
+
+                // Get kitchen (thread pool) information
+                int maxChefs, minChefs, availableChefs;
+                ThreadPool.GetMaxThreads(out maxChefs, out _);
+                ThreadPool.GetMinThreads(out minChefs, out _);
+                ThreadPool.GetAvailableThreads(out availableChefs, out _);
+
+                Console.WriteLine($"Kitchen (Thread pool) information - MaxChefs: {maxChefs}, MinChefs: {minChefs}, AvailableChefs: {availableChefs}");
+                Console.WriteLine($"Pending orders: {pendingOrders}");
+
+                // Check for kitchen (thread pool) starvation
+                if (availableChefs == 0)
+                {
+                    Console.WriteLine("Kitchen (Thread pool) starvation detected!");
+                }
+            }
+
+            Thread.Sleep(100); // Wait for a short duration before checking again
+        }
+
+        Console.ReadLine();
+    }
+
+    static void ProcessOrder(object orderContext)
+    {
+        Console.WriteLine($"Chef {Thread.CurrentThread.ManagedThreadId} is cooking order {orderContext}");
+
+        // Simulate cooking time
+        Thread.Sleep(1000);
+
+        Console.WriteLine($"Chef {Thread.CurrentThread.ManagedThreadId} completed cooking order {orderContext}");
+
+        lock (lockObject)
+        {
+            completedOrders++;
+        }
+    }
+}
+
+Resolving ThreadPool Starvation Using async/await:
+
+    Utilizing asynchronous programming with async/await can help mitigate ThreadPool starvation.
+    By using async/await, threads are not blocked during asynchronous operations, allowing them to be released back to the ThreadPool.
+    This is particularly effective for I/O-bound operations, where threads are not actively computing but waiting for external resources.
+
+you can resolve above thread pool starvation problem by converting your coto to below format:
+
+using System;
+using System.Threading.Tasks;
+
+class Program
+{
+    private static int totalOrders = 100;
+    private static int completedOrders = 0;
+    private static object lockObject = new object();
+
+    static async Task Main()
+    {
+        // Set the maximum number of chefs (threads) in the kitchen (thread pool) to 10
+        ThreadPool.SetMaxThreads(10, 10);
+
+        Console.WriteLine("Press Enter to start the simulation...");
+        Console.ReadLine();
+
+        // Simulate a restaurant scenario with chefs (thread pool) handling orders (tasks) asynchronously
+        var orderTasks = new Task[totalOrders];
+        for (int i = 0; i < totalOrders; i++)
+        {
+            orderTasks[i] = ProcessOrderAsync(i);
+        }
+
+        // Wait for all orders to be completed
+        await Task.WhenAll(orderTasks);
+
+        Console.WriteLine("All orders completed. Press Enter to exit.");
+        Console.ReadLine();
+    }
+
+    static async Task ProcessOrderAsync(int orderNumber)
+    {
+        Console.WriteLine($"Chef {Thread.CurrentThread.ManagedThreadId} is cooking order {orderNumber}");
+
+        // Simulate asynchronous cooking time
+        await Task.Delay(1000);
+
+        Console.WriteLine($"Chef {Thread.CurrentThread.ManagedThreadId} completed cooking order {orderNumber}");
+
+        lock (lockObject)
+        {
+            completedOrders++;
+        }
+
+        MonitorThreadPool();
+    }
+
+    static void MonitorThreadPool()
+    {
+        lock (lockObject)
+        {
+            // Check for kitchen (thread pool) starvation
+            int pendingOrders = totalOrders - completedOrders;
+
+            // Get kitchen (thread pool) information
+            int maxChefs, minChefs, availableChefs;
+            ThreadPool.GetMaxThreads(out maxChefs, out _);
+            ThreadPool.GetMinThreads(out minChefs, out _);
+            ThreadPool.GetAvailableThreads(out availableChefs, out _);
+
+            Console.WriteLine($"Kitchen (Thread pool) information - MaxChefs: {maxChefs}, MinChefs: {minChefs}, AvailableChefs: {availableChefs}");
+            Console.WriteLine($"Pending orders: {pendingOrders}");
+
+            // Check for kitchen (thread pool) starvation
+            if (availableChefs == 0)
+            {
+                Console.WriteLine("Kitchen (Thread pool) starvation detected!");
+            }
+        }
+    }
+}
+
+ThreadPool starvation, even when using async/await, can occur due to various reasons, and understanding and addressing these issues are crucial for maintaining application performance. When working with async/await, it's important to ensure that asynchronous methods are truly non-blocking. If there are synchronous blocking operations within async methods, they can tie up threads and contribute to ThreadPool starvation. You should carefully examine your asynchronous methods to eliminate any blocking operations that might hinder the efficient utilization of threads.
+
+// Incorrect: Blocking operation inside async method
+static async Task MyAsyncMethod()
+{
+    // This synchronous operation can lead to ThreadPool starvation
+    SomeBlockingOperation();
+    await SomeAsyncOperation();
+}
+
+
+
+// Correct: Non-blocking operations inside async method
+static async Task MyAsyncMethod()
+{
+    // Asynchronous operation
+    await SomeAsyncOperation();
+}
+
+Additionally, long-running or CPU-bound operations inside async methods can still pose challenges. If such operations are not genuinely asynchronous, they can lead to ThreadPool starvation. To address this, you should move CPU-bound or long-running operations outside the async context, using mechanisms like Task.Run only when necessary.
+
+// Incorrect: Long-running CPU-bound operation inside async method
+static async Task MyAsyncMethod()
+{
+    // This CPU-bound operation can lead to ThreadPool starvation
+    await Task.Run(() => SomeLongRunningOperation());
+}
+
+
+
+// Correct: Moving long-running operation outside async method
+static async Task MyAsyncMethod()
+{
+    // Asynchronous operation without blocking threads
+    await SomeAsyncOperation();
+}
+
+// Long-running operation moved outside async method
+static void SomeLongRunningOperation()
+{
+    // CPU-bound operation
+}
+
+ThreadPool configuration is another critical factor. Explicitly setting insufficient threads using ThreadPool.SetMinThreads or ThreadPool.SetMaxThreads can limit the number of available threads, causing ThreadPool starvation. Properly configuring the ThreadPool based on the application's needs is essential for optimal performance.
+
+// Incorrect: Configuring the ThreadPool with insufficient threads
+ThreadPool.SetMinThreads(2, 2);
+ThreadPool.SetMaxThreads(5, 5);
+
+
+// Correct: Adjusting ThreadPool settings
+ThreadPool.SetMinThreads(10, 10);
+ThreadPool.SetMaxThreads(50, 50);
+
+External factors, such as issues with external services or dependencies, can also contribute to ThreadPool starvation. Network or I/O bottlenecks may result in threads waiting for resources. Identifying and addressing these external factors is crucial for overall system stability.
